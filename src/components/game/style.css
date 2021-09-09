@@ -2,7 +2,7 @@
   display: inline-block;
   width: 50px;
   height: 50px;
-  border: 3px solid #8B4513;
+  border: 1px solid #8B4513;
   background-color: #BDB76B;
   text-align: center;
   font-size: large;
@@ -13,10 +13,16 @@
   display: inline-block;
   width: 50px;
   height: 50px;
-  border: 3px solid #8B4513;
+  border: 1px solid #8B4513;
   background-color: rgb(204, 192, 179);
   color: rgb(204, 192, 179);
   text-align: center;
   font-size: large;
   line-height: 50px;
+}
+
+.table-container {
+  background-color: rgb(204, 192, 179);
+  width: fit-content;
+  border: 3px solid #8B4513;
 }

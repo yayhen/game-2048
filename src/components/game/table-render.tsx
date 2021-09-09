@@ -26,6 +26,8 @@ export class TableRender extends React.Component<Props, {}> {
   }
 
   render() {
-    return this.addCeils();
+    return <div className="table-container">
+      {this.addCeils()}
+    </div>
   }
 }

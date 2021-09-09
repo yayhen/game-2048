@@ -9,13 +9,6 @@ interface Props {
 export class Cell extends React.Component<Props, {}> {
   id = `${this.props.coordinates[0]}${this.props.coordinates[1]}`;
 
-  componentDidUpdate() {
-    let hui = document.getElementById(this.id);
-    if(hui) {
-      hui.style.backgroundColor = 'red';
-    }
-  }
-
   getColorFromNumber(value: number) {
     let colorMap = new Map();
     colorMap.set(2, '#eee4da');
@@ -36,6 +29,7 @@ export class Cell extends React.Component<Props, {}> {
       return <div className="cell_empty">
         &nbsp;
       </div>
+      
     }
     return <div className='cell' id={this.id} style={{backgroundColor: this.getColorFromNumber(this.props.value)}}>
       {this.props.value}

@@ -1,4 +1,5 @@
 import { action, makeAutoObservable, observable } from "mobx";
+import { CellAnimation } from "../shared/cell-animation";
 
 export class GameStore {
   @observable gameState: number[][] = [[]];
@@ -65,6 +66,13 @@ export class GameStore {
       for(let i=0; i<this.gameState.length; i++) {
         if(this.gameState[i][j] !== 0) {
           newGameArray[j].push(this.gameState[i][j]);
+          let cellsAbove = 0;
+          for(let k=i; k>=1; k--) {
+            if(this.gameState[k-1][j] && this.gameState[k-1][j]!==0) {
+              cellsAbove++;
+            }
+          }
+          CellAnimation.move({x: i, y: j},{x: cellsAbove, y: j})
         }
       }
     }
@@ -90,17 +98,18 @@ export class GameStore {
         item.push(0);
       }
     });
-    for(let i=0; i<newGameArray.length; i++) {
-      for(let j=0; j<newGameArray[0].length; j++) {
-        this.gameState[i][j] = newGameArray[j][i];
+    setTimeout(() => {
+      for(let i=0; i<newGameArray.length; i++) {
+        for(let j=0; j<newGameArray[0].length; j++) {
+          this.gameState[i][j] = newGameArray[j][i];
+        }
       }
-    }
-    if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
+      if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
 
-    } else {
-      this.addNumberToRandomCell();
-    }
-    
+      } else {
+        this.addNumberToRandomCell();
+      }
+    }, 150)
   }
 
   @action turnDown() {
@@ -109,13 +118,20 @@ export class GameStore {
     this.gameState.forEach((item => {
       arrayToRotate.unshift(item);
     }));
-    this.gameState = arrayToRotate.slice();
+    //this.gameState = arrayToRotate.slice();
     let newGameArray: number[][] = [[]];
-    for(let j=0; j<this.gameState[0].length; j++) {
+    for(let j=0; j<arrayToRotate[0].length; j++) {
       newGameArray[j]=[];
-      for(let i=0; i<this.gameState.length; i++) {
-        if(this.gameState[i][j] !== 0) {
-          newGameArray[j].push(this.gameState[i][j]);
+      for(let i=0; i<arrayToRotate.length; i++) {
+        if(arrayToRotate[i][j] !== 0) {
+          newGameArray[j].push(arrayToRotate[i][j]);
+          let cellsAbove = 0;
+          for(let k=i; k>=1; k--) {
+            if(arrayToRotate[k-1][j] && arrayToRotate[k-1][j]!==0) {
+              cellsAbove++;
+            }
+          }
+          CellAnimation.move({x: arrayToRotate.length - i - 1, y: j},{x: arrayToRotate.length - cellsAbove - 1, y: j});
         }
       }
     }
@@ -141,32 +157,42 @@ export class GameStore {
         item.push(0);
       }
     });
-    for(let i=0; i<newGameArray.length; i++) {
-      for(let j=0; j<newGameArray[0].length; j++) {
-        this.gameState[i][j] = newGameArray[j][i];
+    setTimeout(() => {
+      for(let i=0; i<newGameArray.length; i++) {
+        for(let j=0; j<newGameArray[0].length; j++) {
+          this.gameState[i][j] = newGameArray[j][i];
+        }
       }
-    }
-    arrayToRotate = [];
-    this.gameState.forEach((item => {
-      arrayToRotate.unshift(item);
-    }));
-    this.gameState = arrayToRotate.slice();
-    if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
-      
-    } else {
-      this.addNumberToRandomCell();
-    }
+      arrayToRotate = [];
+      this.gameState.forEach((item => {
+        arrayToRotate.unshift(item);
+      }));
+      this.gameState = arrayToRotate.slice();
+      if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
+
+      } else {
+        this.addNumberToRandomCell();
+      }
+    }, 150)
+    
   }
 
   @action turnLeft() {
     let oldArray = JSON.parse(JSON.stringify(this.gameState));
     let newGameArray:number[][] = [];
     let gameArrayRow:number[] = [];
-    this.gameState.forEach((item) => {
+    this.gameState.forEach((item, index) => {
       gameArrayRow = [];
-      item.forEach((itm) => {
+      item.forEach((itm, ind) => {
         if(itm!==0) {
           gameArrayRow.push(itm);
+          let cellsAbove = 0;
+          for(let k=ind; k>=1; k--) {
+            if(this.gameState[index][k-1] && this.gameState[index][k-1]!==0) {
+              cellsAbove++;
+            }
+          }
+          CellAnimation.move({x: index, y: ind},{x: index, y: cellsAbove});
         }
       })
       newGameArray.push(gameArrayRow);
@@ -193,27 +219,36 @@ export class GameStore {
         item.push(0);
       }
     });
-    for(let i=0; i<newGameArray.length; i++) {
-      for(let j=0; j<newGameArray[0].length; j++) {
-        this.gameState[i][j] = newGameArray[i][j];
+    setTimeout(() => {
+      for(let i=0; i<newGameArray.length; i++) {
+        for(let j=0; j<newGameArray[0].length; j++) {
+          this.gameState[i][j] = newGameArray[i][j];
+        }
       }
-    }
-    if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
-      
-    } else {
-      this.addNumberToRandomCell();
-    }
+      if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
+        
+      } else {
+        this.addNumberToRandomCell();
+      }
+    }, 150)
   }
   
   @action turnRight() {
     let oldArray = JSON.parse(JSON.stringify(this.gameState));
     let newGameArray:number[][] = [];
     let gameArrayRow:number[] = [];
-    this.gameState.forEach((item) => {
+    this.gameState.forEach((item, index) => {
       gameArrayRow = [];
-      item.forEach((itm) => {
+      item.forEach((itm, ind) => {
         if(itm!==0) {
           gameArrayRow.unshift(itm);
+          let cellsAbove = 0;
+          for(let k=ind; k<=item.length-1; k++) {
+            if(this.gameState[index][k+1] && this.gameState[index][k+1]!==0) {
+              cellsAbove++;
+            }
+          }
+          CellAnimation.move({x: index, y: ind},{x: index, y: item.length-1-cellsAbove});
         }
       })
       newGameArray.push(gameArrayRow);
@@ -240,16 +275,19 @@ export class GameStore {
         item.push(0);
       }
     });
-    for(let i=0; i<newGameArray.length; i++) {
-      for(let j=0; j<newGameArray[0].length; j++) {
-        this.gameState[i][j] = newGameArray[i][newGameArray[0].length-1-j];
+    
+    setTimeout(() => {
+      for(let i=0; i<newGameArray.length; i++) {
+        for(let j=0; j<newGameArray[0].length; j++) {
+          this.gameState[i][j] = newGameArray[i][newGameArray[0].length-1-j];
+        }
       }
-    }
-    if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
-      
-    } else {
-      this.addNumberToRandomCell();
-    }
+      if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
+        
+      } else {
+        this.addNumberToRandomCell();
+      }
+    }, 150);
   }
 }
 
