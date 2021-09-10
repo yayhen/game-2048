@@ -26,13 +26,17 @@ export class Cell extends React.Component<Props, {}> {
   
   render() {
     if(this.props.value===0) {
-      return <div className="cell_empty">
-        &nbsp;
+      return <div className="cell-wrapper">
+        <div className="cell_empty">
+          &nbsp;
+        </div>
       </div>
       
     }
-    return <div className='cell' id={this.id} style={{backgroundColor: this.getColorFromNumber(this.props.value)}}>
-      {this.props.value}
+    return <div className="cell-wrapper">
+      <div className="cell" id={this.id} style={{backgroundColor: this.getColorFromNumber(this.props.value)}}>
+        {this.props.value}
+      </div>
     </div>
   }
 }

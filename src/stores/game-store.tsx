@@ -3,22 +3,60 @@ import { CellAnimation } from "../shared/cell-animation";
 
 export class GameStore {
   @observable gameState: number[][] = [[]];
+  previousGameState: number[][] = [[]];
   @observable score: number = 0;
+  @observable gameWasLosed: boolean = false;
 
-  constructor(rows: number, colunms: number) {
+  constructor() {
     makeAutoObservable(this);
-    for(let i=0; i<rows; i++) {
-      this.gameState[i] = [];
-      for(let j=0; j<colunms; j++) {
-        this.gameState[i][j] = 0;
-      }
-    }
-    this.addNumberToRandomCell();
-    this.addNumberToRandomCell();
+    this.newGame();
   }
 
   increaseScore(value: number) {
     this.score += value*2;
+    let best = parseInt(localStorage.getItem('best') as string);
+    if (best !== best) {
+      localStorage.setItem('best', this.score.toString());
+    }
+    if(this.score > best) {
+      localStorage.setItem('best', this.score.toString());
+    }
+
+  }
+
+  finishGame() {
+    this.gameWasLosed = true;
+  }
+
+  loseCheck(): boolean {
+    let totalEmptyCells = 0;
+    this.gameState.forEach((item) => {
+      item.forEach((itm) => {
+        if(itm === 0) {
+          totalEmptyCells += 1;
+        }
+      })
+    });
+    if(totalEmptyCells===0) {
+      for(let i=0; i<this.gameState.length-1; i++) {
+        for(let j=0; j<this.gameState[0].length-1; j++) {
+          if((this.gameState[i][j]===this.gameState[i+1][j]) || (this.gameState[i][j]===this.gameState[i][j+1])) {
+            return false;
+          }
+        }
+      }
+      for (let i=0; i<this.gameState.length-1; i++) {
+        if(this.gameState[i][this.gameState[0].length-1] === this.gameState[i+1][this.gameState[0].length-1]) {
+          return false
+        }
+      }
+      for (let i=0; i<this.gameState[0].length-1; i++) {
+        if(this.gameState[this.gameState.length-1][i] === this.gameState[this.gameState.length-1][i+1]) {
+          return false
+        }
+      }
+      return true
+    } else return false
   }
 
   addNumberToRandomCell() {
@@ -30,6 +68,10 @@ export class GameStore {
         }
       })
     });
+    if(totalEmptyCells===0) {
+      this.finishGame();
+      return
+    }
     let addNumberCheck = false;
     for (let i=0; i<this.gameState.length; i++) {
       for(let j=0; j<this.gameState[0].length; j++) {
@@ -44,6 +86,9 @@ export class GameStore {
     }
     if(!addNumberCheck) {
       this.addNumberToRandomCell();
+    }
+    if(this.loseCheck()) {
+      this.finishGame();
     }
   }
 
@@ -60,6 +105,7 @@ export class GameStore {
 
   @action turnUp() {
     let oldArray = JSON.parse(JSON.stringify(this.gameState));
+    this.previousGameState = JSON.parse(JSON.stringify(this.gameState));
     let newGameArray: number[][] = [[]];
     for(let j=0; j<this.gameState[0].length; j++) {
       newGameArray[j]=[];
@@ -68,7 +114,7 @@ export class GameStore {
           newGameArray[j].push(this.gameState[i][j]);
           let cellsAbove = 0;
           for(let k=i; k>=1; k--) {
-            if(this.gameState[k-1][j] && this.gameState[k-1][j]!==0) {
+            if(this.gameState[k-1][j] && this.gameState[k-1][j]!==0 && (this.gameState[k-1][j]!==this.gameState[k][j])) {
               cellsAbove++;
             }
           }
@@ -105,7 +151,9 @@ export class GameStore {
         }
       }
       if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
-
+        if(this.loseCheck()) {
+          this.finishGame();
+        }
       } else {
         this.addNumberToRandomCell();
       }
@@ -113,6 +161,7 @@ export class GameStore {
   }
 
   @action turnDown() {
+    this.previousGameState = JSON.parse(JSON.stringify(this.gameState));
     let oldArray = JSON.parse(JSON.stringify(this.gameState));
     let arrayToRotate: number[][] = [];
     this.gameState.forEach((item => {
@@ -127,7 +176,7 @@ export class GameStore {
           newGameArray[j].push(arrayToRotate[i][j]);
           let cellsAbove = 0;
           for(let k=i; k>=1; k--) {
-            if(arrayToRotate[k-1][j] && arrayToRotate[k-1][j]!==0) {
+            if(arrayToRotate[k-1][j] && arrayToRotate[k-1][j]!==0 && (arrayToRotate[k-1][j]!==arrayToRotate[k][j])) {
               cellsAbove++;
             }
           }
@@ -169,7 +218,9 @@ export class GameStore {
       }));
       this.gameState = arrayToRotate.slice();
       if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
-
+        if(this.loseCheck()) {
+          this.finishGame();
+        }
       } else {
         this.addNumberToRandomCell();
       }
@@ -179,6 +230,7 @@ export class GameStore {
 
   @action turnLeft() {
     let oldArray = JSON.parse(JSON.stringify(this.gameState));
+    this.previousGameState = JSON.parse(JSON.stringify(this.gameState));
     let newGameArray:number[][] = [];
     let gameArrayRow:number[] = [];
     this.gameState.forEach((item, index) => {
@@ -188,7 +240,7 @@ export class GameStore {
           gameArrayRow.push(itm);
           let cellsAbove = 0;
           for(let k=ind; k>=1; k--) {
-            if(this.gameState[index][k-1] && this.gameState[index][k-1]!==0) {
+            if(this.gameState[index][k-1] && this.gameState[index][k-1]!==0 &&(this.gameState[index][k-1] !==this.gameState[index][k])) {
               cellsAbove++;
             }
           }
@@ -226,7 +278,9 @@ export class GameStore {
         }
       }
       if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
-        
+        if(this.loseCheck()) {
+          this.finishGame();
+        }
       } else {
         this.addNumberToRandomCell();
       }
@@ -235,6 +289,7 @@ export class GameStore {
   
   @action turnRight() {
     let oldArray = JSON.parse(JSON.stringify(this.gameState));
+    this.previousGameState = JSON.parse(JSON.stringify(this.gameState));
     let newGameArray:number[][] = [];
     let gameArrayRow:number[] = [];
     this.gameState.forEach((item, index) => {
@@ -244,7 +299,7 @@ export class GameStore {
           gameArrayRow.unshift(itm);
           let cellsAbove = 0;
           for(let k=ind; k<=item.length-1; k++) {
-            if(this.gameState[index][k+1] && this.gameState[index][k+1]!==0) {
+            if(this.gameState[index][k+1] && this.gameState[index][k+1]!==0 && (this.gameState[index][k+1]!==this.gameState[index][k])) {
               cellsAbove++;
             }
           }
@@ -275,7 +330,6 @@ export class GameStore {
         item.push(0);
       }
     });
-    
     setTimeout(() => {
       for(let i=0; i<newGameArray.length; i++) {
         for(let j=0; j<newGameArray[0].length; j++) {
@@ -283,12 +337,32 @@ export class GameStore {
         }
       }
       if(this.compareNewAndOldGameArrays(oldArray, this.gameState)) {
-        
+        if(this.loseCheck()) {
+          this.finishGame();
+        }
       } else {
         this.addNumberToRandomCell();
       }
     }, 150);
   }
+
+  @action returnTurn() {
+    this.gameState = JSON.parse(JSON.stringify(this.previousGameState));
+  }
+
+  @action newGame() {
+    for(let i=0; i<4; i++) {
+      this.gameState[i] = [];
+      for(let j=0; j<4; j++) {
+        this.gameState[i][j] = 0;
+      }
+    }
+    this.gameWasLosed = false;
+    this.score = 0;
+    this.addNumberToRandomCell();
+    this.addNumberToRandomCell();
+    this.previousGameState = JSON.parse(JSON.stringify(this.gameState));
+  }
 }
 
-export default new GameStore(4, 4)
+export default new GameStore();

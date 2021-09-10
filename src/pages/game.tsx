@@ -5,6 +5,7 @@ import  {ControlsButtons}  from '../components/controls/control-buttons';
 import { Score } from '../components/game/score';
 import { TableRender } from '../components/game/table-render';
 import { GameStore } from '../stores/game-store';
+import './style.css'
 
 @inject("gameStore")
 @observer export class Game extends React.Component<{gameStore?: GameStore}, {}> {
@@ -29,14 +30,30 @@ import { GameStore } from '../stores/game-store';
   }
 
   render() {
+    if(this.props.gameStore?.gameWasLosed) {
+      return <div style={{marginLeft: '500px'}} onKeyDown={(e) => this.keyPressHandler(e)} tabIndex={0}>
+      <h1>This is the game page</h1>
+      <Link to="/">
+        Start page
+      </Link>
+      <Score />
+      <h2>Game over</h2>
+      <button onClick={() => {this.props.gameStore?.returnTurn()}}>&#11176;</button>
+      <button onClick={() => {this.props.gameStore?.newGame()}}>&#10227;</button>
+      <button>Autoplay</button>
+    </div>
+    }
+
     return <div style={{marginLeft: '500px'}} onKeyDown={(e) => this.keyPressHandler(e)} tabIndex={0}>
         <h1>This is the game page</h1>
         <Link to="/">
           Start page
         </Link>
         <Score />
+        <button onClick={() => {this.props.gameStore?.returnTurn()}}>&#11176;</button>
+        <button onClick={() => {this.props.gameStore?.newGame()}}>&#10227;</button>
         <TableRender cells={this.props.gameStore?.gameState || []}></TableRender>
-        <ControlsButtons />
+        {/* <ControlsButtons /> */}
       </div>
     
   }

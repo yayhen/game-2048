@@ -1,5 +1,8 @@
 export class CellAnimation {
   static move(from:{x: number, y: number}, to:{x:number, y:number}) {
+    if((from.x -to.x === 0) && (from.y -to.y === 0)) {
+      return
+    }
     const cellSizeInPixels = 50;
     let cell = document.getElementById(`${from.x}${from.y}`);
     let frameCounter = 0;
