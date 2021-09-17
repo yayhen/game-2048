@@ -1,8 +1,35 @@
 export class Anton {
 
-  static nextTurn(gameArray: number[][]): string {
+  static nextTurn(gameArray: number[][] = [[]]): string {
     let scores: number[] = [];
-
+    scores.push(Anton.turnUpScore(gameArray));
+    scores.push(Anton.turnDownScore(gameArray));
+    scores.push(Anton.turnLeftScore(gameArray));
+    scores.push(Anton.turnRightScore(gameArray));
+    let hiScore = 0;
+    let hiScoreIndex = Math.floor(Math.random()*4);
+    scores.forEach((item, index) => {
+      if(item>hiScore) {
+        hiScoreIndex = index;
+      }
+    })
+    switch (hiScoreIndex) {
+      case 0:
+        return 'up';
+        break;
+      case 1:
+        return 'down';
+        break;
+      case 2:
+        return 'left';
+        break;
+      case 3:
+        return 'right';
+        break;    
+      default:
+        return 'up';
+        break;
+    }
     return 'up';
   }
 
@@ -124,7 +151,7 @@ export class Anton {
         if(item[i+1]) {
           if(item[i]===item[i+1]) {
             gameArrayWithUniting.push(item[i]*2);
-            score += item[i]*2
+            score += item[i]*2;
             i=i+1;
           }else {
             gameArrayWithUniting.push(item[i]);

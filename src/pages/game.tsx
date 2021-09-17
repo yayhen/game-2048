@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import  {ControlsButtons}  from '../components/controls/control-buttons';
 import { Score } from '../components/game/score';
 import { TableRender } from '../components/game/table-render';
+import { Anton } from '../shared/artificial-intelligence/Anton';
 import { GameStore } from '../stores/game-store';
 import './style.css'
 
@@ -29,6 +30,30 @@ import './style.css'
     }
   }
 
+  autoPlayStart() {
+    const interval = setInterval(() => {
+      const nextTurn = Anton.nextTurn(this.props.gameStore?.gameState);
+      switch (nextTurn) {
+        case 'up':
+          this.props.gameStore?.turnUp();
+          break;
+        case 'down':
+          this.props.gameStore?.turnDown();
+          break;
+        case 'left':
+          this.props.gameStore?.turnLeft();
+          break;
+        case 'right':
+          this.props.gameStore?.turnRight();
+          break;
+        
+        default:
+          this.props.gameStore?.turnUp();
+          break;
+      }
+    }, 1000);
+  }
+
   render() {
     if(this.props.gameStore?.gameWasLosed) {
       return <div style={{marginLeft: '500px'}} onKeyDown={(e) => this.keyPressHandler(e)} tabIndex={0}>
@@ -40,7 +65,7 @@ import './style.css'
       <h2>Game over</h2>
       <button onClick={() => {this.props.gameStore?.returnTurn()}}>&#11176;</button>
       <button onClick={() => {this.props.gameStore?.newGame()}}>&#10227;</button>
-      <button>Autoplay</button>
+      <button onClick={() =>  this.autoPlayStart()}>Autoplay</button>
     </div>
     }
 
@@ -52,6 +77,7 @@ import './style.css'
         <Score />
         <button onClick={() => {this.props.gameStore?.returnTurn()}}>&#11176;</button>
         <button onClick={() => {this.props.gameStore?.newGame()}}>&#10227;</button>
+        <button onClick={() =>  this.autoPlayStart()}>Autoplay</button>
         <TableRender cells={this.props.gameStore?.gameState || []}></TableRender>
         {/* <ControlsButtons /> */}
       </div>
