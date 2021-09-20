@@ -31,6 +31,7 @@
   background-color: rgb(204, 192, 179);
   width: fit-content;
   border: 3px solid #8B4513;
+  margin: 0 auto;
 }
 
 .score div {

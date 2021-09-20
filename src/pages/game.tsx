@@ -10,6 +10,8 @@ import './style.css'
 
 @inject("gameStore")
 @observer export class Game extends React.Component<{gameStore?: GameStore}, {}> {
+  autoplay: boolean = false;
+  AutoplayIntervalId: NodeJS.Timeout | undefined;
 
   keyPressHandler(e: React.KeyboardEvent<HTMLDivElement>) {
     switch (e.key) {
@@ -31,35 +33,42 @@ import './style.css'
   }
 
   autoPlayStart() {
-    const interval = setInterval(() => {
-      const nextTurn = Anton.nextTurn(this.props.gameStore?.gameState);
-      switch (nextTurn) {
-        case 'up':
-          this.props.gameStore?.turnUp();
-          break;
-        case 'down':
-          this.props.gameStore?.turnDown();
-          break;
-        case 'left':
-          this.props.gameStore?.turnLeft();
-          break;
-        case 'right':
-          this.props.gameStore?.turnRight();
-          break;
-        
-        default:
-          this.props.gameStore?.turnUp();
-          break;
-      }
-    }, 1000);
+    this.autoplay = !this.autoplay;
+    if(this.autoplay) {
+      this.AutoplayIntervalId = setInterval(() => {
+        const nextTurn = Anton.nextTurn(this.props.gameStore?.gameState);
+        switch (nextTurn) {
+          case 'up':
+            this.props.gameStore?.turnUp();
+            break;
+          case 'down':
+            this.props.gameStore?.turnDown();
+            break;
+          case 'left':
+            this.props.gameStore?.turnLeft();
+            break;
+          case 'right':
+            this.props.gameStore?.turnRight();
+            break;
+          
+          default:
+            this.props.gameStore?.turnUp();
+            break;
+        }
+      }, 1000);
+    }else {
+      clearInterval(this.AutoplayIntervalId!);
+    }
   }
 
   render() {
     if(this.props.gameStore?.gameWasLosed) {
-      return <div style={{marginLeft: '500px'}} onKeyDown={(e) => this.keyPressHandler(e)} tabIndex={0}>
-      <h1>This is the game page</h1>
+      return <div className="game-page" onKeyDown={(e) => this.keyPressHandler(e)} tabIndex={0}>
+      <h1>Play 2048</h1>
       <Link to="/">
-        Start page
+        <button>
+          To start page
+        </button>
       </Link>
       <Score />
       <h2>Game over</h2>
@@ -69,10 +78,12 @@ import './style.css'
     </div>
     }
 
-    return <div style={{marginLeft: '500px'}} onKeyDown={(e) => this.keyPressHandler(e)} tabIndex={0}>
-        <h1>This is the game page</h1>
+    return <div className="game-page" onKeyDown={(e) => this.keyPressHandler(e)} tabIndex={0}>
+        <h1>Play 2048</h1>
         <Link to="/">
-          Start page
+          <button>
+            To start page
+          </button>
         </Link>
         <Score />
         <button onClick={() => {this.props.gameStore?.returnTurn()}}>&#11176;</button>

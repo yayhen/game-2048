@@ -1,3 +1,7 @@
+/**
+ * Check readme file in directory shared/artificial-inteligence.
+ * AI version 1;
+ */
 export class Anton {
 
   static nextTurn(gameArray: number[][] = [[]]): string {
@@ -11,6 +15,7 @@ export class Anton {
     scores.forEach((item, index) => {
       if(item>hiScore) {
         hiScoreIndex = index;
+        hiScore = item;
       }
     })
     switch (hiScoreIndex) {
